@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDL AI 선배</title>
+    <title>CDL 인수인계 AI 선배</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         :root { --ku-crimson: #8b1a1a; }
-        body { margin: 0; font-family: sans-serif; background: #f0f0f2; display: flex; justify-content: center; height: 100vh; }
-        #root { width: 100%; max-width: 500px; background: white; display: flex; flex-direction: column; height: 100%; }
-        .header { background: var(--ku-crimson); color: white; padding: 15px; font-weight: bold; text-align: center; }
-        .chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
-        .bot { align-self: flex-start; background: #e9e9eb; color: black; }
-        .user { align-self: flex-end; background: var(--ku-crimson); color: white; }
-        .input-box { border-top: 1px solid #ddd; padding: 10px; display: flex; gap: 5px; background: white; }
-        textarea { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px; resize: none; height: 40px; font-family: inherit; }
-        button { background: var(--ku-crimson); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f0f2; display: flex; justify-content: center; height: 100vh; }
+        #root { width: 100%; max-width: 500px; background: white; display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { background: var(--ku-crimson); color: white; padding: 15px; font-weight: bold; text-align: center; font-size: 1.1rem; }
+        .chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+        .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
+        .bot { align-self: flex-start; background: #e9e9eb; color: #1a1a1a; border-bottom-left-radius: 2px; }
+        .user { align-self: flex-end; background: var(--ku-crimson); color: white; border-bottom-right-radius: 2px; }
+        .input-box { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 8px; background: white; }
+        textarea { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; resize: none; height: 44px; font-family: inherit; font-size: 14px; outline: none; }
+        button { background: var(--ku-crimson); color: white; border: none; padding: 0 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:disabled { opacity: 0.5; }
+        .loading { font-size: 12px; color: #888; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -27,158 +29,40 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
-        // ★ [인수인계 파일 내용을 여기에 붙여넣으세요]
         const HANDOVER_DATA = `
         === 학술정보관(CDL) 기본 정보 ===
-- 위치: 개교 100주년 기념 삼성관 내
-- 개관: 2005년 5월
-- 특징: 국내 최초 인포메이션 커먼스(IC) 개념 기반, 멀티미디어 자료 이용 가능
-- 소장자료: DVD, 필름 등 영상자료 40,000여 점
-- 문의전화: 02-3290-2782 (2층 멀티미디어열람실 데스크)
-- 자료실은 방학 중 토요일도 개관, 열람실은 연중 개방
-- 이용 시 학생증 지참 필수
+        - 위치: 개교 100주년 기념 삼성관 내
+        - 개관: 2005년 5월
+        - 특징: 국내 최초 인포메이션 커먼스(IC) 개념 기반, 멀티미디어 자료 이용 가능
+        - 소장자료: DVD, 필름 등 영상자료 40,000여 점
+        - 문의전화: 02-3290-2782 (2층 멀티미디어열람실 데스크)
+        - 자료실은 방학 중 토요일도 개관, 열람실은 연중 개방
+        - 이용 시 학생증 지참 필수
 
-=== CDL 층별 시설 안내 ===
+        === CDL 층별 시설 안내 ===
+        [4층] 대열람실, 그룹스터디룸(4인/6인/8인)
+        [3층] 화상회의실(학술교류/교환학생 소통)
+        [2층] 멀티미디어열람실, Theater(영상관람), 그룹프레젠테이션룸, 그룹스터디룸, Carrel(1인실)
+        [1층] C-Lounge, D-Lounge(집중학습/노트북석), L-Lounge(다목적/휴게), Sleeping Zone
+        [지하 1층] 국제기구자료실(UN/EU/OECD), 학위논문, 보존서고, 교양잡지/신문
 
-[4층]
-■ 대열람실
-- 일반열람좌석 427석, 노트북 좌석 586석
-- 문의: 02-3290-2782
+        === 대출/반납 규정 ===
+        - 학부생: 30책, 15일 (연장 15일씩 3회)
+        - 대학원생: 60책, 30일 (연장 30일씩 3회)
+        - 연체 시: 연체일수만큼 대출 중지 (30일 이상 연체 시 시설 이용 전면 중지)
+        - 반납: 자동반납기, 데스크 직접 반납, 택배 반납 가능
 
-■ 그룹스터디룸 (4층)
-- 용도: 소규모 그룹 스터디/토론
-- 수용: 총 40명 (4인실 2실, 6인실 4실, 8인실 1실)
-- 시설: 회의테이블, 이동식 화이트보드
-- 예약: 시설 예약페이지/모바일 앱 (사용일 2주 전~당일까지)
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무
-
-[3층]
-■ 화상회의실
-- 용도: 타대학 학술교류, 교환학생 소통
-- 수용: 12명
-- 시설: 다자간 회의장비(12개 사이트 지원), 50인치 PDP, DVD Player, AV System, 영상저장서버
-- 이용시간: 평일 9:00~17:30 (방학 9:00~16:30), 토·공휴일 휴무
-- 문의: 02-3290-2782
-
-[2층]
-■ 멀티미디어열람실
-- 용도: TV, CD, DVD, Video, Audio 등 멀티미디어 자료 열람
-- 이용방법: 모바일 앱(KLIB) 또는 좌석배정기(키오스크)로 좌석 배정 / 앱·키오스크 불가 좌석은 현장 방문 배정
-- 시설: CD/DVD 전용 PC, 멀티미디어 재생 S/W, TV, DVD Player, 국회/국립중앙도서관 원문 열람·출력
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무
-
-■ Theater
-- 용도: 디지털 시네마, 소극장 형식의 영상 관람
-- 수용: 16명 (의자 추가 시 최대 22명)
-- 시설: 63인치 PDP, DVD Player, AV 시스템, 7.1Ch 스피커, 2인용 소파
-- 예약: 시설 예약페이지/모바일 앱 (사용일 2주 전~이틀 전까지)
-- 최소 신청인원: 7명 이상
-- 예약 신청 후 관리자 승인 필요 (승인까지 1~2일 소요), 예약/배정 현황에서 확인
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무
-
-■ 그룹프레젠테이션룸
-- 용도: 중규모 세미나, 회의
-- 수용: 18명
-- 시설: 프로젝터, AV시스템
-- 예약: 시설 예약페이지/모바일 앱 (사용일 2주 전~이틀 전까지)
-- 대학원생 이상만 신청 가능, 최소 9명 이상
-- 예약 신청 후 관리자 승인 필요 (1~2일 소요)
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무
-
-■ 그룹스터디룸 (2층)
-- 수용: 총 94명 (4인실 7실, 6인실 11실)
-- 시설: 회의테이블, 화이트보드
-- 예약: 시설 예약페이지/모바일 앱 (사용일 2주 전~당일까지)
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무
-
-■ Carrel (2층 G-Lounge)
-- 용도: 1인 집중 학습 공간 (전원 제공)
-- 수용: 2실
-- 이용방법: 모바일 앱 또는 좌석배정기(키오스크)
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00)
-
-[1층]
-■ C-Lounge
-- A Zone (144석): 전원+개별 스탠드 설치 무선 노트북 열람석, 06:00~23:00 연중개방
-- B Zone (40석): 전원+유무선 네트워크, 삼각 1인 테이블, 06:00~23:00 연중개방
-- C Zone (26석): 전원+유무선 네트워크, 캐럴형 1인 열람석, 06:00~23:00 연중개방
-- Group Study room (8인실 1개, 6인실 2개, 총 20석): 협업·토론 가능 공간
-  이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00)
-  예약: 홈페이지/모바일 앱, 이용 전 2층 멀티미디어열람실 데스크에 학생증 제출
-- Sleeping Zone (남성 2실, 여성 2실, 총 12석): 학습 중 휴게 공간, 06:00~23:00 자유이용
-
-■ D-Lounge
-- A Zone (69석): 전원+개별 스탠드, 집중 학습 열람석, 06:00~23:00 연중개방
-- B Zone (29석): 전원+무선 네트워크, 노트북 열람석, 06:00~23:00 연중개방
-- Group Study room (4인실 4개, 총 16석)
-  이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00)
-  예약: 홈페이지/모바일 앱, 이용 전 2층 멀티미디어열람실 데스크에 학생증 제출
-
-■ L-Lounge
-- 용도: 다목적 공간 (Legacy/Learning/Living 콘셉트), 혼천전도·용감수경 전시, 학술강연·행사·휴게
-- 이용방법: 별도 행사 없으면 자유 이용 (행사 시 자리 비워야 함)
-- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일·공휴일 휴무
-- 행사 예약: 사전 유선 예약, 사용 목적 검토·승인 후 이용 가능 (대관신청서 필요)
-- 행사 가능시간: 평일 9:30~21:30 (방학 9:30~18:30)
-
-[지하 1층]
-■ 국제기구자료실
-- 소장: UN/EU/OECD 자료, 고려대 학위논문, 교양잡지, 신문, 보존서고 (총 약 29만권)
-- UN자료: 43,800여 책 (1957년 국내 최초 신설)
-- EU자료: Official Journal 등 9,100여 책 + Microfiche 10,000여 장 (1991년 신설)
-- OECD자료: 9,400여 책 (1970년부터)
-- 학위논문: 106,600여 권, 디지털 컬렉션 전문 열람 가능 / 타대학 논문은 국회도서관 원문 전용 PC 이용
-- 보존서고: 1945~2000년대 약 125,000여 권
-- 좌석: 열람석 45석, 자료검색석 2석, 국회도서관 원문 열람석 1석, 프린트 전용석 1석
-- 기기: 복사기 2대, 프린터 1대, 마이크로필름리더기 1대
-- UN/EU/OECD 자료: 일반인도 이용 가능, 관외 대출 불가, 복사만 가능
-- 학위논문·보존서고: 본교 학생 대출 가능
-- 교양잡지·신문: 열람·복사만 가능 (고신문은 사진촬영만 가능)
-- 문의: 02-3290-1506
-
-=== 대출/반납 규정 ===
-■ 대출 책수 및 기간
-- 학부생: 30책, 15일, 연장 15일 3회
-- 대학원생/교환학생(대학원)/직원: 60책, 30일, 연장 30일 3회
-- 교원(전임/비전임/강사/명예): 90책, 90일, 연장 90일 3회
-- 연회비 이용자/교환학생(학부/국외): 10책, 15일, 연장 15일 1회
-※ 반납예정일이 공휴일/휴관일이면 다음날로 자동 변경
-
-■ 대출방법
-- 서가에서 자료 선택 후 셀프대출반납기에 ID(카드/모바일) 인증
-- 딸림자료(부록 등)는 자료실 데스크에서만 대출/반납 가능
-
-■ 대출 기간 연장
-- 나의공간 > 자료대출/예약 현황 메뉴에서 온라인 연장
-- 반납예정일 5일 전부터 연장 가능
-- 예약자가 없는 경우에만 연장 가능
-
-■ 반납방법
-- RFID 자동화 시스템 (자동반납기, 스마트대출반납기, 셀프대출반납기)
-- 각 자료실 데스크 직접 반납
-- 택배 반납 가능 (착불 불가) / 수령인: 택배 반납
-
-■ 연체/제재
-- 연체 반납 시: 연체일 수만큼 대출 중지
-- 여러 자료 연체 시: 가장 오래 연체한 자료 기준 적용
-- 연회비 이용자: 연체일의 2배만큼 대출 중지
-- 30일 이상 장기 연체: 반납 시까지 도서관 출입 및 시설 이용 전면 중지
-
-■ 변상
-- 분실·훼손으로 자료 가치 현저히 저하 시 동일도서로 변상
-- 중고도서 접수 불가
-- 절판 시 자료실 담당자 지정 자료로 변상
-
-=== 시설 예약 방법 ===
-- 예약페이지: library.korea.ac.kr 시설·좌석 예약·현황 메뉴
-- 모바일 앱: KLIB 앱
-- 좌석배정기(키오스크): 현장 키오스크
+        === 시설 예약 방법 ===
+        - 도서관 홈페이지 또는 KLIB 모바일 앱 이용
+        - 2층 Theater/그룹프레젠테이션룸은 관리자 승인 필요 (1~2일 소요)
         `;
 
-        const SYSTEM_PROMPT = `당신은 고려대학교 학술정보관(CDL) 근로장학생 AI 선배입니다. 
-        매뉴얼 내용: ${HANDOVER_DATA}
-        매뉴얼에 없는 질문은 "규정이 없어요"라고 하거나 홈페이지를 안내하세요. 
-        한국어로 친절하게 답변하세요.`;
+        const SYSTEM_PROMPT = `당신은 고려대학교 학술정보관(CDL) 근로장학생 AI 선배입니다.
+        제공된 [인수인계 데이터]를 바탕으로 답변하세요. 
+        규정이 없는 내용은 "매뉴얼에 관련 규정이 없어요"라고 답하고, 말투는 친절하게 하세요.
+
+        [인수인계 데이터]
+        ${HANDOVER_DATA}`;
 
         function App() {
             const [messages, setMessages] = useState([]);
@@ -187,14 +71,11 @@
             const chatRef = useRef();
 
             useEffect(() => {
-                if (chatRef.current) {
-                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
-                }
-            }, [messages]);
+                if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            }, [messages, isTyping]);
 
             const handleSend = async () => {
                 if (!input.trim() || isTyping) return;
-                
                 const userMsg = input;
                 setInput("");
                 setMessages(prev => [...prev, { role: "user", content: userMsg }]);
@@ -204,18 +85,16 @@
                     const res = await fetch("/api/chat", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            systemPrompt: SYSTEM_PROMPT, 
-                            messages: [{ role: "user", content: userMsg }] 
-                        })
+                        body: JSON.stringify({ systemPrompt: SYSTEM_PROMPT, messages: [{ role: "user", content: userMsg }] })
                     });
-                    
                     const data = await res.json();
-                    if (!res.ok) throw new Error();
-
-                    setMessages(prev => [...prev, { role: "assistant", content: data.content[0].text }]);
-                } catch (error) {
-                    setMessages(prev => [...prev, { role: "assistant", content: "앗, 서버 에러가 났어요. 환경변수를 확인해봐!" }]);
+                    if (data?.content?.[0]?.text) {
+                        setMessages(prev => [...prev, { role: "assistant", content: data.content[0].text }]);
+                    } else {
+                        throw new Error();
+                    }
+                } catch (err) {
+                    setMessages(prev => [...prev, { role: "assistant", content: "앗, 오류가 발생했어. 다시 시도해줄래?" }]);
                 } finally {
                     setIsTyping(false);
                 }
@@ -223,34 +102,21 @@
 
             return (
                 <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
-                    <div className="header">🦁 CDL 인수인계 선배</div>
+                    <div className="header">🦁 CDL 인수인계 AI 선배</div>
                     <div className="chat-container" ref={chatRef}>
-                        <div className="msg bot">안녕! CDL에 대해 궁금한 게 있으면 물어봐. 😊</div>
+                        <div className="msg bot">안녕! CDL 규정이나 시설에 대해 궁금한 게 있으면 물어봐. 😊</div>
                         {messages.map((msg, i) => (
-                            <div key={i} className={`msg ${msg.role === 'user' ? 'user' : 'bot'}`}>
-                                {msg.content}
-                            </div>
+                            <div key={i} className={`msg ${msg.role === 'user' ? 'user' : 'bot'}`}>{msg.content}</div>
                         ))}
-                        {isTyping && <div style={{fontSize: '12px', color: '#888'}}>선배가 생각 중...</div>}
+                        {isTyping && <div className="loading">생각 중... 💬</div>}
                     </div>
                     <div className="input-box">
-                        <textarea 
-                            value={input} 
-                            onChange={(e) => setInput(e.target.value)} 
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSend();
-                                }
-                            }}
-                            placeholder="질문을 입력하세요..."
-                        />
-                        <button onClick={handleSend}>전송</button>
+                        <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); handleSend(); }}} placeholder="질문을 입력하세요..." />
+                        <button onClick={handleSend} disabled={isTyping || !input.trim()}>전송</button>
                     </div>
                 </div>
             );
         }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
