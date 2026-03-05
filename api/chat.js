@@ -1,9 +1,9 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-  const { messages, systemPrompt } = req.body;
-
   try {
+    const { messages, systemPrompt } = req.body;
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -20,8 +20,17 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    res.status(200).json(data);
+
+    if (!response.ok) {
+      // API 키 문제나 잔액 부족 시 상세 에러 반환
+      return res.status(response.status).json({ 
+        error: data.error?.message || "AI 서버 응답 에러",
+        type: data.error?.type 
+      });
+    }
+
+    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: "서버 연결 실패: " + error.message });
   }
 }
