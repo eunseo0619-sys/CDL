@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고려대 CDL 도서관 안내 시스템</title>
+    <title>고려대 CDL 근로장학생 AI 어시스턴트</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,172 +15,131 @@
             --text: #f0f0f0;
             --text-dim: #aaa;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background-color: var(--bg-dark); 
-            font-family: 'Noto Sans KR', sans-serif; 
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .container {
-            width: 100%;
-            maxWidth: 600px;
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid var(--border);
-            border-right: 1px solid var(--border);
-        }
-
-        /* Header */
-        header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .logo {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--ku-crimson), var(--ku-bright-red));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-
-        /* Chat Window */
-        #chat-window {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 15px;
-            font-size: 14px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-        .bot {
-            align-self: flex-start;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-bottom-left-radius: 2px;
-        }
-        .user {
-            align-self: flex-end;
-            background: var(--ku-crimson);
-            border-bottom-right-radius: 2px;
-        }
-
-        /* Quick Menu */
-        .quick-menu {
-            padding: 10px 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .quick-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .quick-btn:hover {
-            border-color: var(--ku-bright-red);
-            color: white;
-        }
-
-        /* Input Area */
-        .input-area {
-            padding: 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 10px;
-        }
-        input {
-            flex: 1;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
-            border-radius: 25px;
-            color: white;
-            outline: none;
-        }
-        button#send-btn {
-            width: 45px;
-            height: 45px;
-            background: var(--ku-crimson);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        body { background-color: var(--bg-dark); font-family: 'Noto Sans KR', sans-serif; color: var(--text); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        .container { width: 100%; max-width: 750px; display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); background: #000; }
+        header { padding: 18px 25px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; background: var(--bg-dark); }
+        .logo { width: 45px; height: 45px; background: linear-gradient(135deg, var(--ku-crimson), var(--ku-bright-red)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 15px rgba(139, 26, 26, 0.3); }
+        #chat-window { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .message { max-width: 85%; padding: 14px 18px; border-radius: 15px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .bot { align-self: flex-start; background: var(--card-bg); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
+        .user { align-self: flex-end; background: var(--ku-crimson); border-bottom-right-radius: 2px; box-shadow: 0 4px 10px rgba(139, 26, 26, 0.2); }
+        .quick-menu { padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid var(--border); background: var(--bg-dark); }
+        .quick-btn { background: #222; border: 1px solid var(--border); color: var(--text-dim); padding: 7px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .quick-btn:hover { border-color: var(--ku-bright-red); color: #fff; transform: translateY(-2px); }
+        .input-area { padding: 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; background: var(--bg-dark); }
+        input { flex: 1; background: var(--card-bg); border: 1px solid var(--border); padding: 14px 22px; border-radius: 30px; color: #fff; outline: none; font-size: 14.5px; transition: border-color 0.3s; }
+        input:focus { border-color: var(--ku-bright-red); }
+        button#send-btn { width: 48px; height: 48px; background: var(--ku-crimson); border: none; border-radius: 50%; color: #fff; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .system-prompt { display: none; } /* 데이터 보관용 */
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <div class="logo">📚</div>
+        <div class="logo">🦁</div>
         <div>
-            <h1 style="font-size: 17px;">고려대 CDL 가이드</h1>
-            <p style="font-size: 11px; color: var(--text-dim);">학술정보관 이용 안내 (오프라인 모드)</p>
+            <h1 style="font-size: 18px; font-weight: 700;">CDL 인수인계 AI 어시스턴트</h1>
+            <p style="font-size: 11px; color: var(--text-dim);">고려대학교 학술정보관 근로장학생 전용</p>
         </div>
     </header>
 
     <div id="chat-window">
-        <div class="message bot">안녕하세요! 고려대학교 학술정보관(CDL) 근로장학생 AI 어시스턴트입니다. 
+        <div class="message bot">안녕하세요! 고려대학교 학술정보관(CDL) 근로장학생을 위한 AI 어시스턴트입니다. 📚
 
-도서관 시설, 대출 규정, 예약 방법 등 궁금한 점을 아래 메뉴에서 선택하거나 입력해 주세요!</div>
+전달받은 모든 매뉴얼 정보를 학습했습니다. 
+시설 이용법, 대출/반납 규정, 예약 승인 조건 등 궁금한 내용을 입력해 주세요.
+
+**정확하고 친절하게 안내해 드리겠습니다.**</div>
     </div>
 
     <div class="quick-menu" id="quick-menu">
-        <button class="quick-btn" onclick="ask('층별 시설 안내')">🏢 층별 시설 안내</button>
-        <button class="quick-btn" onclick="ask('대출/반납 규정')">📖 대출/반납 규정</button>
-        <button class="quick-btn" onclick="ask('스터디룸 예약')">📅 예약 방법</button>
-        <button class="quick-btn" onclick="ask('지하 1층 국제기구')">🌍 국제기구자료실</button>
-        <button class="quick-btn" onclick="ask('이용 시간')">⏰ 이용 시간</button>
+        <button class="quick-btn" onclick="search('4층')">4층 대열람실/스터디룸</button>
+        <button class="quick-btn" onclick="search('3층')">3층 화상회의실</button>
+        <button class="quick-btn" onclick="search('2층')">2층 멀티/Theater/세미나</button>
+        <button class="quick-btn" onclick="search('1층')">1층 라운지/Sleeping</button>
+        <button class="quick-btn" onclick="search('지하')">지하 국제기구자료실</button>
+        <button class="quick-btn" onclick="search('대출')">대출 권수 및 기간</button>
+        <button class="quick-btn" onclick="search('연체')">연체 및 시설 이용 제재</button>
+        <button class="quick-btn" onclick="search('변상')">자료 분실/훼손 변상</button>
     </div>
 
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="질문을 입력하세요..." onkeypress="if(event.keyCode==13) send()">
+        <input type="text" id="user-input" placeholder="질문을 입력하세요... (예: 대출 연장 방법은?)" onkeypress="if(event.keyCode==13) send()">
         <button id="send-btn" onclick="send()">↑</button>
     </div>
 </div>
 
 <script>
-    // 제공해주신 텍스트 데이터를 기반으로 한 지식 베이스
-    const libraryData = {
-        "기본": "학술정보관(CDL)은 삼성관 내 위치하며 2005년 개관했습니다. 국내 최초 인포메이션 커먼스(IC) 기반으로 멀티미디어 이용이 가능합니다. 문의: 02-3290-2782",
-        "층별": `[4층] 대열람실(좌석 1,013석), 그룹스터디룸
-[3층] 화상회의실(12명 수용)
-[2층] 멀티미디어열람실, Theater, 그룹프레젠테이션룸, 그룹스터디룸, Carrel
-[1층] C-Lounge, D-Lounge, Sleeping Zone, L-Lounge
-[지하1층] 국제기구자료실, 보존서고, 학위논문`,
-        "대출": `■ 대출 규정:
-- 학부생: 30책, 15일 (연장 3회)
-- 대학원생: 60책, 30일 (연장 3회)
-- 교원: 90책, 90일 (연장 3회)
-연체 시 연체일수만큼 대출이 중지됩니다.`,
-        "예약": "시설 예약은 도서관 홈페이지(library.korea.ac.kr) 또는 모바일 앱(KLIB)에서 가능합니다. 사용일 2주 전부터 예약할 수 있습니다.",
-        "시간": "평일 09:00~22:00, 토요일 09:00~15:00 운영합니다. 방학 중에는 평일 19:00, 토요일 13:00까지 단축 운영됩니다. (1층 라운지 06:00~23:00 연중개방)",
-        "국제기구": "지하 1층 국제기구자료실은 UN, EU, OECD 자료와 학위논문(약 29만권)을 소장하고 있습니다. 문의: 02-3290-1506"
+    // 모든 텍스트 데이터를 그대로 탑재한 지식 베이스
+    const FULL_KNOWLEDGE = {
+        basic: `=== 학술정보관(CDL) 기본 정보 ===
+- 위치: 개교 100주년 기념 삼성관 내 (2005년 5월 개관)
+- 특징: 국내 최초 인포메이션 커먼스(IC) 개념 기반, 멀티미디어 자료 이용 특화
+- 소장자료: DVD, 필름 등 영상자료 약 40,000여 점
+- 문의: 02-3290-2782 (2층 멀티미디어열람실 데스크)
+- 참고: 방학 중 토요일 개관, 열람실은 연중 개방. 학생증 지참 필수.`,
+
+        floor4: `[4층 시설 안내]
+■ 대열람실: 일반열람좌석 427석, 노트북 좌석 586석 (문의: 02-3290-2782)
+■ 그룹스터디룸(4층): 4인실(2실), 6인실(4실), 8인실(1실) / 총 40명 수용
+- 시설: 회의테이블, 이동식 화이트보드
+- 예약: 시설 예약페이지/모바일 앱 (사용일 2주 전~당일까지)
+- 이용시간: 평일 9:00~22:00 (방학 9:00~19:00), 토요일 9:00~15:00 (방학 9:00~13:00), 공휴일 휴무`,
+
+        floor3: `[3층 시설 안내]
+■ 화상회의실: 타대학 학술교류 및 교환학생 소통용 (12명 수용)
+- 시설: 다자간 회의장비(12개 사이트 지원), 50인치 PDP, AV System 등
+- 이용시간: 평일 9:00~17:30 (방학 9:00~16:30), 토·공휴일 휴무 (문의: 02-3290-2782)`,
+
+        floor2: `[2층 시설 안내]
+■ 멀티미디어열람실: TV, CD, DVD, Video 등 열람. 앱/키오스크로 좌석 배정 필수.
+■ Theater(소극장): 16명(최대 22명) 수용. 63인치 PDP, 7.1Ch 스피커 구비.
+- 예약: 2주 전~2일 전까지 신청 (관리자 승인 1~2일 소요)
+- 조건: 최소 신청 인원 7명 이상 필수.
+■ 그룹프레젠테이션룸: 중규모 세미나(18명 수용). 프로젝터 구비.
+- 조건: 대학원생 이상만 신청 가능, 최소 9명 이상. 관리자 승인 필요.
+■ 그룹스터디룸(2층): 4인실(7실), 6인실(11실) / 총 94명 수용.
+■ Carrel(2층 G-Lounge): 1인 집중 학습 공간(2실). 앱/키오스크 배정.`,
+
+        floor1: `[1층 시설 안내]
+■ C-Lounge: A존(144석), B존(40석), C존(26석). 06:00~23:00 연중개방.
+- Group Study room: 8인실(1), 6인실(2). 이용 전 2층 데스크 학생증 제출 필수.
+- Sleeping Zone: 남성 2실, 여성 2실(총 12석). 06:00~23:00 자유이용.
+■ D-Lounge: A존(69석), B존(29석). 06:00~23:00 연중개방.
+- Group Study room: 4인실(4). 이용 전 2층 데스크 학생증 제출 필수.
+■ L-Lounge: 다목적 공간(전시, 행사, 휴게). 별도 행사 없으면 자유 이용.`,
+
+        floorB1: `[지하 1층 국제기구자료실]
+- 소장: UN/EU/OECD 자료, 학위논문, 교양잡지, 신문, 보존서고 (총 29만권)
+- 특징: UN자료(국내 최초), EU자료(1991년), OECD자료(1970년~)
+- 좌석: 열람석 45석 및 국회도서관 원문 열람석(1)
+- 이용규정: UN/EU/OECD 자료는 관외 대출 불가(복사만 가능). 본교생은 학위논문 및 보존서고 대출 가능.
+- 문의: 02-3290-1506`,
+
+        loan: `=== 대출/반납 규정 ===
+■ 대출 책수 및 기간:
+- 학부생: 30책 / 15일 (연장 15일 3회)
+- 대학원생/직원: 60책 / 30일 (연장 30일 3회)
+- 교원: 90책 / 90일 (연장 90일 3회)
+- 연회비 이용자/국외교환학생: 10책 / 15일 (연장 1회)
+■ 대출 방법: 서가 선택 후 셀프대출반납기 인증 (딸림자료는 데스크에서만 가능)
+■ 연장: 반납예정일 5일 전부터 온라인 연장 가능 (예약자가 없을 경우)`,
+
+        return: `=== 반납 및 연체 규정 ===
+■ 반납 방법: RFID 자동화 시스템(무인반납기 등), 데스크 직접 반납, 택배 반납 가능
+■ 연체 제재:
+- 일반: 연체일 수만큼 대출 중지 (여러 권인 경우 최장기 도서 기준)
+- 연회비 이용자: 연체일의 2배 기간 중지
+- 장기 연체(30일 이상): 반납 시까지 도서관 출입 및 모든 시설 이용 전면 중지
+■ 변상: 분실·훼손 시 동일도서 변상 필수 (중고 불가, 절판 시 담당자 지정 도서)`,
+
+        reserve: `=== 시설 예약 방법 ===
+- 온라인: library.korea.ac.kr (시설·좌석 예약 메뉴)
+- 모바일: KLIB 앱 설치 후 예약
+- 현장: 각 층 좌석배정기(키오스크) 이용`
     };
 
     const chatWindow = document.getElementById('chat-window');
@@ -193,38 +152,37 @@
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    function ask(type) {
-        addMessage('user', type);
-        
-        let response = "";
-        if(type.includes("시설") || type.includes("층")) response = libraryData.층별;
-        else if(type.includes("대출") || type.includes("반납")) response = libraryData.대출;
-        else if(type.includes("예약")) response = libraryData.예약;
-        else if(type.includes("시간") || type.includes("방학")) response = libraryData.시간;
-        else if(type.includes("국제") || type.includes("지하")) response = libraryData.국제기구;
-        else response = libraryData.기본 + "\n\n더 자세한 사항은 도서관 홈페이지를 참조해 주세요.";
-
-        setTimeout(() => addMessage('bot', response), 300);
+    function search(keyword) {
+        addMessage('user', keyword);
+        let result = getResponse(keyword);
+        setTimeout(() => addMessage('bot', result), 300);
     }
 
     function send() {
         const input = document.getElementById('user-input');
-        if(!input.value.trim()) return;
+        const query = input.value.trim();
+        if(!query) return;
         
-        const query = input.value;
         addMessage('user', query);
-        
-        // 간단한 키워드 매칭 로직
-        let botReply = "죄송합니다. 해당 질문에 대한 정보를 찾지 못했습니다. 도서관 홈페이지(library.korea.ac.kr)에서 확인하거나 담당 직원에게 문의하세요.";
-        
-        if(query.includes("층") || query.includes("시설")) botReply = libraryData.층별;
-        else if(query.includes("대출") || query.includes("책")) botReply = libraryData.대출;
-        else if(query.includes("예약")) botReply = libraryData.예약;
-        else if(query.includes("시간") || query.includes("언제")) botReply = libraryData.시간;
-        else if(query.includes("지하") || query.includes("국제")) botReply = libraryData.국제기구;
-        
-        setTimeout(() => addMessage('bot', botReply), 400);
+        const result = getResponse(query);
+        setTimeout(() => addMessage('bot', result), 400);
         input.value = "";
+    }
+
+    function getResponse(query) {
+        // 인수인계 봇 답변 로직
+        if(query.match(/4층|대열람|4층스터디/)) return FULL_KNOWLEDGE.floor4;
+        if(query.match(/3층|화상/)) return FULL_KNOWLEDGE.floor3;
+        if(query.match(/2층|멀티|Theater|씨어터|프레젠테이션|세미나|캐럴|Carrel/)) return FULL_KNOWLEDGE.floor2;
+        if(query.match(/1층|C-|D-|L-|라운지|슬리핑|Sleeping/)) return FULL_KNOWLEDGE.floor1;
+        if(query.match(/지하|국제|UN|EU|OECD|학위논문|보존/)) return FULL_KNOWLEDGE.floorB1;
+        if(query.match(/대출|빌리|권수|기한|연장|며칠/)) return FULL_KNOWLEDGE.loan;
+        if(query.match(/반납|연체|정지|제재|못빌려/)) return FULL_KNOWLEDGE.return;
+        if(query.match(/변상|분실|잃어|훼손|파손/)) return FULL_KNOWLEDGE.return;
+        if(query.match(/예약|어떻게|신청|방법|앱|키오스크/)) return FULL_KNOWLEDGE.reserve;
+        if(query.match(/기본|위치|번호|전화|시간|방학|삼성관/)) return FULL_KNOWLEDGE.basic;
+
+        return "죄송합니다. 해당 질문에 대한 구체적인 내용을 매뉴얼에서 찾을 수 없습니다. 도서관 홈페이지(library.korea.ac.kr)에서 확인하거나 담당 직원에게 문의하세요.";
     }
 </script>
 
