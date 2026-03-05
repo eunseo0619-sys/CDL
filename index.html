@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDL AI 선배</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root { --ku-crimson: #8b1a1a; }
+        body { margin: 0; font-family: sans-serif; background: #f0f0f2; display: flex; justify-content: center; height: 100vh; }
+        #root { width: 100%; max-width: 500px; background: white; display: flex; flex-direction: column; height: 100%; }
+        .header { background: var(--ku-crimson); color: white; padding: 15px; font-weight: bold; text-align: center; }
+        .chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 8px; max-width: 80%; font-size: 14px; white-space: pre-wrap; word-break: break-all; }
+        .bot { align-self: flex-start; background: #e9e9eb; color: black; }
+        .user { align-self: flex-end; background: var(--ku-crimson); color: white; }
+        .input-box { border-top: 1px solid #ddd; padding: 10px; display: flex; gap: 5px; background: white; }
+        textarea { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 8px; resize: none; height: 40px; font-family: inherit; }
+        button { background: var(--ku-crimson); color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // ★ [인수인계 파일 내용을 여기에 붙여넣으세요]
+        const HANDOVER_DATA = `
+        여기에 매뉴얼 내용을 붙여넣으세요.
+        `;
+
+        const SYSTEM_PROMPT = `당신은 고려대학교 학술정보관(CDL) 근로장학생 AI 선배입니다. 
+        매뉴얼 내용: ${HANDOVER_DATA}
+        매뉴얼에 없는 질문은 "규정이 없어요"라고 하거나 홈페이지를 안내하세요. 
+        한국어로 친절하게 답변하세요.`;
+
+        function App() {
+            const [messages, setMessages] = useState([]);
+            const [input, setInput] = useState("");
+            const [isTyping, setIsTyping] = useState(false);
+            const chatRef = useRef();
+
+            useEffect(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                }
+            }, [messages]);
+
+            const handleSend = async () => {
+                if (!input.trim() || isTyping) return;
+                
+                const userMsg = input;
+                setInput("");
+                setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+                setIsTyping(true);
+
+                try {
+                    const res = await fetch("/api/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            systemPrompt: SYSTEM_PROMPT, 
+                            messages: [{ role: "user", content: userMsg }] 
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    if (!res.ok) throw new Error();
+
+                    setMessages(prev => [...prev, { role: "assistant", content: data.content[0].text }]);
+                } catch (error) {
+                    setMessages(prev => [...prev, { role: "assistant", content: "앗, 서버 에러가 났어요. 환경변수를 확인해봐!" }]);
+                } finally {
+                    setIsTyping(false);
+                }
+            };
+
+            return (
+                <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
+                    <div className="header">🦁 CDL 인수인계 선배</div>
+                    <div className="chat-container" ref={chatRef}>
+                        <div className="msg bot">안녕! CDL에 대해 궁금한 게 있으면 물어봐. 😊</div>
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`msg ${msg.role === 'user' ? 'user' : 'bot'}`}>
+                                {msg.content}
+                            </div>
+                        ))}
+                        {isTyping && <div style={{fontSize: '12px', color: '#888'}}>선배가 생각 중...</div>}
+                    </div>
+                    <div className="input-box">
+                        <textarea 
+                            value={input} 
+                            onChange={(e) => setInput(e.target.value)} 
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            placeholder="질문을 입력하세요..."
+                        />
+                        <button onClick={handleSend}>전송</button>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
