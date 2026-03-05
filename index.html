@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDL 인수인계 AI 선배</title>
+    <title>CDL AI 선배</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         :root { --ku-crimson: #8b1a1a; }
-        body { margin: 0; font-family: sans-serif; background: #f0f0f2; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: #f0f0f2; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         #root { width: 100%; max-width: 500px; background: white; display: flex; flex-direction: column; height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         .header { background: var(--ku-crimson); color: white; padding: 15px; font-weight: bold; text-align: center; }
-        .chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
         .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
         .bot { align-self: flex-start; background: #e9e9eb; color: #1a1a1a; border-bottom-left-radius: 2px; }
         .user { align-self: flex-end; background: var(--ku-crimson); color: white; border-bottom-right-radius: 2px; }
-        .input-box { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 8px; background: white; }
-        textarea { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; resize: none; height: 40px; font-family: inherit; font-size: 14px; outline: none; }
+        .error { align-self: center; background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e; font-size: 12px; border-radius: 5px; padding: 10px; }
+        .input-area { border-top: 1px solid #eee; padding: 15px; display: flex; gap: 8px; background: white; }
+        textarea { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 10px; resize: none; height: 40px; font-family: inherit; outline: none; }
         button { background: var(--ku-crimson); color: white; border: none; padding: 0 18px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         button:disabled { opacity: 0.5; }
-        .loading { font-size: 12px; color: #888; padding: 5px; }
     </style>
 </head>
 <body>
@@ -28,61 +28,63 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
 
-        const HANDOVER_DATA = `
-        === 학술정보관(CDL) 정보 ===
-        - 위치: 개교 100주년 기념 삼성관 내
-        - 문의: 02-3290-2782 / 02-3290-1506
-        - 층별: 4층(대열람실), 3층(화상회의), 2층(멀티미디어), 1층(라운지), B1(국제기구/학위논문)
-        - 대출: 학부생 30책 15일, 대학원 60책 30일 (연장 3회)
-        - 예약: KLIB 앱 혹은 홈페이지 이용
-        - 근거 없는 질문엔 "매뉴얼에 관련 규정이 없어요"라고 답변하세요.
-        `;
+        const HANDOVER_DATA = `=== 학술정보관(CDL) 정보 ===
+        - 위치: 삼성관 / 문의: 02-3290-2782
+        - 대출: 학부 30책 15일, 대학원 60책 30일
+        - 시설: 1~4층 라운지 및 열람실, B1 국제기구자료실
+        - 예약: KLIB 앱 필수`;
 
         function App() {
             const [messages, setMessages] = useState([]);
             const [input, setInput] = useState("");
-            const [isTyping, setIsTyping] = useState(false);
+            const [loading, setLoading] = useState(false);
             const chatRef = useRef();
 
-            useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, [messages, isTyping]);
+            useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, [messages, loading]);
 
-            const handleSend = async () => {
-                if (!input.trim() || isTyping) return;
-                const userMsg = input.trim();
+            const onSend = async () => {
+                if (!input.trim() || loading) return;
+                const text = input.trim();
                 setInput("");
-                setMessages(prev => [...prev, { role: "user", content: userMsg }]);
-                setIsTyping(true);
+                setMessages(prev => [...prev, { role: "user", content: text }]);
+                setLoading(true);
 
                 try {
                     const res = await fetch("/api/chat", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ 
-                            systemPrompt: "고려대 CDL 선배입니다. 다음 정보를 바탕으로 친절하게 답하세요: " + HANDOVER_DATA, 
-                            messages: [{ role: "user", content: userMsg }] 
+                        body: JSON.stringify({
+                            systemPrompt: "고려대 CDL AI 선배입니다. 다음 매뉴얼을 참고해 친절히 답하세요: " + HANDOVER_DATA,
+                            messages: [{ role: "user", content: text }]
                         })
                     });
+
                     const data = await res.json();
-                    const botText = data?.content?.[0]?.text || "답변을 가져오지 못했어요.";
-                    setMessages(prev => [...prev, { role: "assistant", content: botText }]);
+                    if (!res.ok) throw new Error(data.error || "통신 에러");
+
+                    setMessages(prev => [...prev, { role: "assistant", content: data.content[0].text }]);
                 } catch (err) {
-                    setMessages(prev => [...prev, { role: "assistant", content: "앗, 오류가 발생했어. Vercel 환경변수나 API 키를 확인해봐!" }]);
+                    setMessages(prev => [...prev, { role: "error", content: "⚠️ " + err.message }]);
                 } finally {
-                    setIsTyping(false);
+                    setLoading(false);
                 }
             };
 
             return (
                 <div style={{display:'flex', flexDirection:'column', height:'100%'}}>
                     <div className="header">🦁 CDL 인수인계 AI 선배</div>
-                    <div className="chat-container" ref={chatRef}>
+                    <div className="chat-box" ref={chatRef}>
                         <div className="msg bot">안녕! 무엇이든 물어봐. 😊</div>
-                        {messages.map((msg, i) => <div key={i} className={`msg ${msg.role === 'user' ? 'user' : 'bot'}`}>{msg.content}</div>)}
-                        {isTyping && <div className="loading">선배가 생각 중... 💬</div>}
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`msg ${msg.role === 'user' ? 'user' : msg.role === 'error' ? 'error' : 'bot'}`}>
+                                {msg.content}
+                            </div>
+                        ))}
+                        {loading && <div style={{fontSize:'12px', color:'#888'}}>생각 중...</div>}
                     </div>
-                    <div className="input-box">
-                        <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); handleSend(); }}} placeholder="질문 입력..." />
-                        <button onClick={handleSend} disabled={isTyping || !input.trim()}>전송</button>
+                    <div className="input-area">
+                        <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => {if(e.key==='Enter' && !e.shiftKey){e.preventDefault(); onSend();}}} />
+                        <button onClick={onSend} disabled={loading || !input.trim()}>전송</button>
                     </div>
                 </div>
             );
